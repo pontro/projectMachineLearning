@@ -7,28 +7,30 @@ url_lck = "https://gol.gg/tournament/tournament-ranking/LCK%20Spring%202024/"
 def getHtml(url):
     page = requests.get(url)
     html_page = BeautifulSoup(page.content, "html.parser")
-
     return html_page
 
 def getTeamNames(html_page):
     teams = html_page.find_all('a', title = re.compile("stats in LCK"))
-
+    names = []
     for element in teams:
-        print(element.string)
-
-    return teams
+        names.append(element.string)
+    return names
 
 def getTeamWinRate(html_page):
     winRate=html_page.find_all('div', class_= "col-auto pl-1 position-absolute")
-
+    wr = []
     for element in winRate:
-        print(element.string)
+        wr.append(element.string)
+    return wr
+
+def joinWinRateName(arr1, arr2, html_page):
+
+   print(2)
+    
 
 def main():
     html_page = getHtml(url_lck)
-    getTeamNames(html_page)
-    getTeamWinRate(html_page)
-   
+    joinWinRateName(getTeamNames(html_page), getTeamWinRate(html_page), html_page)
 
 
 main()
