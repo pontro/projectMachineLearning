@@ -53,19 +53,36 @@ def getTeamGDM(html_page):
     for i in range(len(teams_GDM)):
          teams_GDM[i] = int (teams_GDM[i])
     return teams_GDM
-    
 
+def getWinners(html_page, lck2022):
+    team_rows = html_page.find_all('tr')[1:]
+    teams_stats = []
+    for row in team_rows:
+        data_cells = row.find_all('td', class_='text_victory')
+        for data_cell in data_cells:
+            stats = data_cell.text.strip()
+            teams_stats.append(stats)
+
+    
+    winner = teams_stats[0]
+
+    wins = [0 for i in range(len(getTeamNames(lck2022)))]
+    for i in range (len(getTeamNames(lck2022))):
+        if getTeamNames(lck2022)[i] == winner:
+            wins[i] = 1
+
+    return wins
+    
 def main():
-    #training data
-    lck2021 = getHtml(lck2021url)
-    
-    
+    html_page = getHtml(url_lck)
+    getTeamNames(html_page)
 
     lck2022 = getHtml(lck2022url)
-    dataLCK22 = {'Team': getTeamNames(lck2022), 'WinRate': getTeamWinRate(lck2022), 'GDM': getTeamGDM(lck2022), 'Winner': }
-    dfLCK22 = pd.DataFrame(dataLCK22)
-    trainingData = dfLCK22.iloc[:, -2:].values
+    lckResults22 = getHtml(lck22results)
 
+    dataLCK22 = {'Team': getTeamNames(lck2022), 'WinRate': getTeamWinRate(lck2022), 'GDM': getTeamGDM(lck2022), 'Wins': getWinners(lckResults22, lck2022)}
+    dfLCK22 = pd.DataFrame(dataLCK22)
+    
 
     trainingData = dfLCK22.iloc[:, -3:].values
 
@@ -76,11 +93,8 @@ def main():
     lck2023 = getHtml(lck2023url)
     dataLCK23 = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023)}
     dfLCK23 = pd.DataFrame(dataLCK23)
+
     testData = dfLCK23.iloc[:, -2:].values
     teamNames = pd.concat([dfLCK22, dfLCK23])
-    print(teamNames)
 
-
-    
-    
 main()
