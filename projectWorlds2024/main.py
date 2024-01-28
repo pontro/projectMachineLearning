@@ -3,7 +3,8 @@ import re
 from bs4 import BeautifulSoup
 
 import pandas as pd
- 
+
+url_lck = "https://gol.gg/tournament/tournament-ranking/LCK%20Spring%202024/"
 lck2023url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202023/"
 lck2022url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202022/"
 lck2021url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202021/"
@@ -15,6 +16,7 @@ def getHtml(url):
     return html_page
 
 def getTeamNames(html_page):
+    nameSTR = re.compile(r'Hanwha Life eSports stats in LCK SPRING 2024')
     teams = html_page.find_all('a', title = re.compile("stats in LCK"))
     names = []
     for element in teams:
@@ -52,7 +54,7 @@ def getTeamGDM(html_page):
          teams_GDM[i] = int (teams_GDM[i])
     return teams_GDM
 
-def getWinners(html_page):
+def getWinners(html_page, lck2022):
     team_rows = html_page.find_all('tr')[1:]
     teams_stats = []
     for row in team_rows:
@@ -61,48 +63,38 @@ def getWinners(html_page):
             stats = data_cell.text.strip()
             teams_stats.append(stats)
 
-    print("Teams Stats:", teams_stats)
-
-    teams_Winner = []
-    counter = 0
-    for team_stat in teams_stats:
-        counter += 1
-        if counter % 2 == 0:
-            teams_Winner.append(team_stat)
-            counter = 0 
-
-    print("Teams Winners:", teams_Winner)
-
-
-def main():
-    #training data
     
+    winner = teams_stats[0]
+
+    wins = [0 for i in range(len(getTeamNames(lck2022)))]
+    for i in range (len(getTeamNames(lck2022))):
+        if getTeamNames(lck2022)[i] == winner:
+            wins[i] = 1
+
+    return wins
+    
+def main():
+    html_page = getHtml(url_lck)
+    getTeamNames(html_page)
 
     lck2022 = getHtml(lck2022url)
-    lck22 = getHtml(lck22results)
-    dataLCK22 = {'Team': getTeamNames(lck2022), 'WinRate': getTeamWinRate(lck2022), 'GDM': getTeamGDM(lck2022)}
+    lckResults22 = getHtml(lck22results)
+
+    dataLCK22 = {'Team': getTeamNames(lck2022), 'WinRate': getTeamWinRate(lck2022), 'GDM': getTeamGDM(lck2022), 'Wins': getWinners(lckResults22, lck2022)}
     dfLCK22 = pd.DataFrame(dataLCK22)
     
-    winner = getWinners(lck22)
-    dfLCK22['Winners'] = winner
-
 
     trainingData = dfLCK22.iloc[:, -3:].values
-    
+
+    print(trainingData)
 
 
     #test data
     lck2023 = getHtml(lck2023url)
     dataLCK23 = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023)}
     dfLCK23 = pd.DataFrame(dataLCK23)
-    
-    testData = dfLCK23.iloc[:, -2:].values
 
+    testData = dfLCK23.iloc[:, -2:].values
     teamNames = pd.concat([dfLCK22, dfLCK23])
-    
-    print(teamNames)
 
 main()
-
-
-
