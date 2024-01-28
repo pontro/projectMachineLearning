@@ -6,10 +6,11 @@ from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 
-url_lck = "https://gol.gg/tournament/tournament-ranking/LCK%20Spring%202024/"
 #2023 urls
 lck2023url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202023/"
 lck23results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202023/"
+emea2023url = "https://gol.gg/tournament/tournament-ranking/EMEA%20Masters%20Summer%202023/"
+emea2023results = "https://gol.gg/tournament/tournament-matchlist/EMEA%20Masters%20Summer%202023/"
 
 #2022 urls
 lck2022url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202022/"
@@ -107,16 +108,16 @@ def main():
     dataLCK22 = {'Team': getTeamNames(lck2022), 'WinRate': getTeamWinRate(lck2022), 'GDM': getTeamGDM(lck2022), 'Wins': getWinners(lckResults22, lck2022)}
     dfLCK22 = pd.DataFrame(dataLCK22)
     
-    #concat dataFrames
+    # concat dataFrames
     trainingDataFrame = pd.concat([dfLCK22, dfLCK21, dfLCK20])
 
-    #x_train and y_train def
+    # x_train and y_train def
     x_train = trainingDataFrame.iloc[:, -3:-1].values
     y_train = trainingDataFrame.iloc[:, -1:].values
     y_train = y_train.ravel()
 
-    #test data
-    #2023
+    # test data
+    # 2023
     lck2023 = getHtml(lck2023url)
     lckResults23 = getHtml(lck23results)
     dataLCK23 = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023), 'Wins': getWinners(lckResults23, lck2023)}
@@ -128,24 +129,26 @@ def main():
 
     x_test_original = x_test.copy()
 
-    #standarize xtrain and xtest so we can use them for inputs for training or evaluating
+    # standarize xtrain and xtest so we can use them for inputs for training or evaluating
     sc = StandardScaler()
     x_train = sc.fit_transform(x_train)
     x_test = sc.transform(x_test)
 
+    # train model
     classifier = SVC(kernel = 'linear', random_state=0)
     classifier.fit(x_train, y_train)
 
+    # make the predictions
     y_pred = classifier.predict(x_test)
     predictions = y_pred.reshape(len(y_pred),1)
+    predictions = predictions.ravel()
 
-    tests = y_test.reshape(len(y_test), 1)
+    # show results
+    results = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023), 'Wins': getWinners(lckResults23, lck2023), 'WinsPred': predictions}
+    results_df = pd.DataFrame(results)
+    results_df['Check'] = np.where(results_df['WinsPred'] == results_df['Wins'], '✔', '✘')
 
-    print(predictions)
-
-    #results = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023), 'Wins': getWinners(lckResults23, lck2023), 'Wins Pred': predictions}
-    #results = pd.DataFrame(results)
-
+    print(results_df)
 
 
 main()
