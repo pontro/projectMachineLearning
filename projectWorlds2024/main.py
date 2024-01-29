@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 
-
+#2023 emea urls
 url_emea_2023_ranking = "https://gol.gg/tournament/tournament-ranking/EMEA%20Masters%20Summer%202023/"
 url_emea_2023_results = "https://gol.gg/tournament/tournament-matchlist/EMEA%20Masters%20Summer%202023/"
 
@@ -32,8 +32,7 @@ def getHtml(url):
     return html_page
 
 def getTeamNames(html_page):
-    nameSTR = re.compile(r'Hanwha Life eSports stats in LCK SPRING 2024')
-    teams = html_page.find_all('a', title = re.compile("stats in LCK"))
+    teams = html_page.find_all('a', title = re.compile("stats in"))
     names = []
     for element in teams:
         names.append(element.string)
@@ -119,11 +118,16 @@ def main():
     y_train = y_train.ravel()
 
     # test data
-    # 2023
+    # 2023 lck
     data_lck_2023 = get_Team_Data(url_lck_2023_ranking, url_lck_2023_results)
     df_lck_2023 = pd.DataFrame(data_lck_2023)
 
-    testingDataFrame = df_lck_2023
+    # 2023 emea
+    data_emea_2023 = get_Team_Data(url_emea_2023_ranking, url_emea_2023_results)
+    df_emea_2023 = pd.DataFrame(data_emea_2023)
+
+
+    testingDataFrame = df_emea_2023
 
     # model training
     x_test = testingDataFrame.iloc[:, -3:-1].values
