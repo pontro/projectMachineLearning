@@ -1,10 +1,9 @@
-import requests
-import re
-import pandas as pd
-import numpy as np 
+import requests, re, pandas as pd, numpy as np
 from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
+from pathlib import Path  
+from flask import  Flask, jsonify, render_template
 
 #2023 emea urls
 url_emea_2023_ranking = "https://gol.gg/tournament/tournament-ranking/EMEA%20Masters%20Summer%202023/"
@@ -126,7 +125,6 @@ def main():
     data_emea_2023 = get_Team_Data(url_emea_2023_ranking, url_emea_2023_results)
     df_emea_2023 = pd.DataFrame(data_emea_2023)
 
-
     testingDataFrame = df_emea_2023
 
     # model training
@@ -147,12 +145,18 @@ def main():
     predictions = y_pred.reshape(len(y_pred),1)
     predictions = predictions.ravel()
 
-    # show results 
+    # show results
+    testingDataFrame['WinsPred'] = predictions
+    testingDataFrame['Check'] = np.where(testingDataFrame['WinsPred'] == testingDataFrame['Wins'], '✔', '✘') 
     results_df = testingDataFrame
-    results_df['WinsPred'] = predictions
-    results_df['Check'] = np.where(results_df['WinsPred'] == results_df['Wins'], '✔', '✘')
 
     print(results_df)
 
-  
+
+    # pass data frame to csv file
+    filepath = Path('projectWorlds2024/predictions.csv')    
+    results_df.to_csv(filepath, index=False)
+
+    return jsonify(results_df)
+
 main()
