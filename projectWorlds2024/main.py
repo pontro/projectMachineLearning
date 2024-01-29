@@ -2,8 +2,15 @@ import requests, re, pandas as pd, numpy as np
 from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
+from pathlib import Path  
+from flask import  Flask, jsonify, render_template
 
-url_lck = "https://gol.gg/tournament/tournament-ranking/LCK%20Spring%202024/"
+app = Flask(__name__)
+
+#2023 emea urls
+url_emea_2023_ranking = "https://gol.gg/tournament/tournament-ranking/EMEA%20Masters%20Summer%202023/"
+url_emea_2023_results = "https://gol.gg/tournament/tournament-matchlist/EMEA%20Masters%20Summer%202023/"
+
 #2023 urls
 url_lck_2023_ranking = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202023/"
 url_lck_2023_results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202023/"
@@ -26,8 +33,7 @@ def getHtml(url):
     return html_page
 
 def getTeamNames(html_page):
-    nameSTR = re.compile(r'Hanwha Life eSports stats in LCK SPRING 2024')
-    teams = html_page.find_all('a', title = re.compile("stats in LCK"))
+    teams = html_page.find_all('a', title = re.compile("stats in"))
     names = []
     for element in teams:
         names.append(element.string)
@@ -59,7 +65,6 @@ def getTeamGDM(html_page):
             teams_GDM.append(team_stat)
             counter = 0
 
-
     for i in range(len(teams_GDM)):
          teams_GDM[i] = int (teams_GDM[i])
     return teams_GDM
@@ -73,7 +78,6 @@ def getWinners(html_page, lck2022):
             stats = data_cell.text.strip()
             teams_stats.append(stats)
 
-    
     winner = teams_stats[0]
 
     wins = [0 for i in range(len(getTeamNames(lck2022)))]
@@ -114,11 +118,13 @@ def main():
 
     #test data
     #2023
-    lck2023 = getHtml(lck2023url)
-    lckResults23 = getHtml(lck23results)
-    dataLCK23 = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023), 'Wins': getWinners(lckResults23, lck2023)}
-    dfLCK23 = pd.DataFrame(dataLCK23)
-    testingDataFrame = dfLCK23
+    data_lck_2023 = get_Team_Data(url_lck_2023_ranking, url_lck_2023_results)
+    df_lck_2023 = pd.DataFrame(data_lck_2023)
+    # 2023 emea
+    data_emea_2023 = get_Team_Data(url_emea_2023_ranking, url_emea_2023_results)
+    df_emea_2023 = pd.DataFrame(data_emea_2023)
+
+    testingDataFrame = df_emea_2023
 
     x_test = testingDataFrame.iloc[:, -3:-1].values
     y_test = testingDataFrame.iloc[:, -1:].values
@@ -135,14 +141,18 @@ def main():
     # make the predictions
     y_pred = classifier.predict(x_test)
     predictions = y_pred.reshape(len(y_pred),1)
+    predictions = predictions.ravel()
 
-    tests = y_test.reshape(len(y_test), 1)
+    testingDataFrame['WinsPred'] = predictions
+    testingDataFrame['Check'] = np.where(testingDataFrame['WinsPred'] == testingDataFrame['Wins'], '✔', '✘') 
+    results_df = testingDataFrame
 
-    print(predictions)
+    return results_df
 
-    #results = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023), 'Wins': getWinners(lckResults23, lck2023), 'Wins Pred': predictions}
-    #results = pd.DataFrame(results)
+def predict():
+    results_df = main()
+    # Convert DataFrame to JSON using jsonify
+    return jsonify(results_df.to_dict(orient='records'))
 
-
-
-main()
+if __name__ == '__main__':
+    app.run(debug=True)
