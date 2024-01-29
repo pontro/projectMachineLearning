@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results</title>
+</head>
+<body>
+    <h1>Prediction Results</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>WinRate</th>
+                <th>GDM</th>
+                <!-- Add other columns based on your DataFrame structure -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result.Team }}</td>
+                    <td>{{ result.WinRate }}</td>
+                    <td>{{ result.GDM }}</td>
+                    <!-- Add other columns based on your DataFrame structure -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -152,8 +152,8 @@ def main():
 @app.route('/', methods=['GET'])
 def predict():
     results_df = main()
-    # Convert DataFrame to JSON using jsonify
-    return jsonify(results_df.to_dict(orient='records'))
+    results = results_df.to_dict(orient='records')
+    return render_template('index.html', results=results)       
 
 @app.route('/favicon.ico')
 def favicon():
