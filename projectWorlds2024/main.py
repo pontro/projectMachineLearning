@@ -86,30 +86,30 @@ def getWinners(html_page, lck2022):
             wins[i] = 1
 
     return wins
-    
+
+def get_Team_Data(url_ranking, url_results):
+    html_ranking = getHtml(url_ranking)
+    html_results = getHtml(url_results)
+    team_Data = {'Team': getTeamNames(html_ranking), 'WinRate': getTeamWinRate(html_ranking), 'GDM': getTeamGDM(html_ranking), 'Wins': getWinners(html_results, html_ranking)}
+    return team_Data
+
 def main():
 
     # training data
     # 2020 
-    lck2020 = getHtml(lck2020url)
-    lckResults20 = getHtml(lck20results)
-    dataLCK20 = {'Team': getTeamNames(lck2020), 'WinRate': getTeamWinRate(lck2020), 'GDM': getTeamGDM(lck2020), 'Wins': getWinners(lckResults20, lck2020)}
-    dfLCK20 = pd.DataFrame(dataLCK20)
+    data_lck_2020 = get_Team_Data(lck2020url, lck20results)
+    df_lck_2020 = pd.DataFrame(data_lck_2020)
 
     # 2021 
-    lck2021 = getHtml(lck2021url)
-    lckResults21 = getHtml(lck21results)
-    dataLCK21 = {'Team': getTeamNames(lck2021), 'WinRate': getTeamWinRate(lck2021), 'GDM': getTeamGDM(lck2021), 'Wins': getWinners(lckResults21, lck2021)}
-    dfLCK21 = pd.DataFrame(dataLCK21)
+    data_lck_2021 = get_Team_Data(lck2021url, lck21results)
+    df_lck_2021 = pd.DataFrame(data_lck_2021)
 
     # 2022 
-    lck2022 = getHtml(lck2022url)
-    lckResults22 = getHtml(lck22results)
-    dataLCK22 = {'Team': getTeamNames(lck2022), 'WinRate': getTeamWinRate(lck2022), 'GDM': getTeamGDM(lck2022), 'Wins': getWinners(lckResults22, lck2022)}
-    dfLCK22 = pd.DataFrame(dataLCK22)
+    data_lck_2022 = get_Team_Data(lck2022url, lck22results)
+    df_lck_2022 = pd.DataFrame(data_lck_2022)
     
     # concat dataFrames
-    trainingDataFrame = pd.concat([dfLCK22, dfLCK21, dfLCK20])
+    trainingDataFrame = pd.concat([df_lck_2022, df_lck_2021, df_lck_2020])
 
     # x_train and y_train def
     x_train = trainingDataFrame.iloc[:, -3:-1].values
@@ -118,11 +118,10 @@ def main():
 
     # test data
     # 2023
-    lck2023 = getHtml(lck2023url)
-    lckResults23 = getHtml(lck23results)
-    dataLCK23 = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023), 'Wins': getWinners(lckResults23, lck2023)}
-    dfLCK23 = pd.DataFrame(dataLCK23)
-    testingDataFrame = dfLCK23
+    data_lck_2023 = get_Team_Data(lck2023url, lck23results)
+    df_lck_2023 = pd.DataFrame(data_lck_2023)
+
+    testingDataFrame = df_lck_2023
 
     x_test = testingDataFrame.iloc[:, -3:-1].values
     y_test = testingDataFrame.iloc[:, -1:].values
