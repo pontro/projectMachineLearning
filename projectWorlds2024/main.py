@@ -1,9 +1,9 @@
-import requests, re, pandas as pd, numpy as np
+import requests, re, pandas as pd, numpy as np, os
 from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 from pathlib import Path  
-from flask import  Flask, jsonify, render_template
+from flask import  Flask, jsonify, render_template, send_from_directory
 
 app = Flask(__name__)
 
@@ -149,10 +149,15 @@ def main():
 
     return results_df
 
+@app.route('/', methods=['GET'])
 def predict():
     results_df = main()
     # Convert DataFrame to JSON using jsonify
     return jsonify(results_df.to_dict(orient='records'))
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == '__main__':
     app.run(debug=True)
