@@ -6,23 +6,25 @@ from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC 
 
+
+url_emea_2023_ranking = "https://gol.gg/tournament/tournament-ranking/EMEA%20Masters%20Summer%202023/"
+url_emea_2023_results = "https://gol.gg/tournament/tournament-matchlist/EMEA%20Masters%20Summer%202023/"
+
 #2023 urls
-lck2023url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202023/"
-lck23results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202023/"
-emea2023url = "https://gol.gg/tournament/tournament-ranking/EMEA%20Masters%20Summer%202023/"
-emea2023results = "https://gol.gg/tournament/tournament-matchlist/EMEA%20Masters%20Summer%202023/"
+url_lck_2023_ranking = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202023/"
+url_lck_2023_results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202023/"
 
 #2022 urls
-lck2022url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202022/"
-lck22results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202022/"
+url_lck_2022_ranking = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202022/"
+url_lck_2022_results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202022/"
 
 #2021 urls
-lck2021url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202021/"
-lck21results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202021/"
+url_lck_2021_ranking = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202021/"
+url_lck_2021_results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202021/"
 
 #2020 urls
-lck2020url = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202020/"
-lck20results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202020/"
+url_lck_2020_ranking = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202020/"
+url_lck_2020_results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202020/"
 
 def getHtml(url):
     page = requests.get(url)
@@ -97,18 +99,18 @@ def main():
 
     # training data
     # 2020 
-    data_lck_2020 = get_Team_Data(lck2020url, lck20results)
+    data_lck_2020 = get_Team_Data(url_lck_2020_ranking, url_lck_2020_results)
     df_lck_2020 = pd.DataFrame(data_lck_2020)
 
     # 2021 
-    data_lck_2021 = get_Team_Data(lck2021url, lck21results)
+    data_lck_2021 = get_Team_Data(url_lck_2021_ranking, url_lck_2021_results)
     df_lck_2021 = pd.DataFrame(data_lck_2021)
 
     # 2022 
-    data_lck_2022 = get_Team_Data(lck2022url, lck22results)
+    data_lck_2022 = get_Team_Data(url_lck_2022_ranking, url_lck_2022_results)
     df_lck_2022 = pd.DataFrame(data_lck_2022)
     
-    # concat dataFrames
+    # concat training dataFrames
     trainingDataFrame = pd.concat([df_lck_2022, df_lck_2021, df_lck_2020])
 
     # x_train and y_train def
@@ -118,15 +120,14 @@ def main():
 
     # test data
     # 2023
-    data_lck_2023 = get_Team_Data(lck2023url, lck23results)
+    data_lck_2023 = get_Team_Data(url_lck_2023_ranking, url_lck_2023_results)
     df_lck_2023 = pd.DataFrame(data_lck_2023)
 
     testingDataFrame = df_lck_2023
 
+    # model training
     x_test = testingDataFrame.iloc[:, -3:-1].values
     y_test = testingDataFrame.iloc[:, -1:].values
-
-    x_test_original = x_test.copy()
 
     # standarize xtrain and xtest so we can use them for inputs for training or evaluating
     sc = StandardScaler()
@@ -142,11 +143,12 @@ def main():
     predictions = y_pred.reshape(len(y_pred),1)
     predictions = predictions.ravel()
 
-    # show results
-    results = {'Team': getTeamNames(lck2023), 'WinRate': getTeamWinRate(lck2023), 'GDM': getTeamGDM(lck2023), 'Wins': getWinners(lckResults23, lck2023), 'WinsPred': predictions}
-    results_df = pd.DataFrame(results)
+    # show results 
+    results_df = testingDataFrame
+    results_df['WinsPred'] = predictions
     results_df['Check'] = np.where(results_df['WinsPred'] == results_df['Wins'], '✔', '✘')
 
     print(results_df)
 
+  
 main()
