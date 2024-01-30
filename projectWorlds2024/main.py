@@ -108,14 +108,6 @@ def main():
     data_lck_2022 = get_Team_Data(url_lck_2022_ranking, url_lck_2022_results)
     df_lck_2022 = pd.DataFrame(data_lck_2022)
     
-    # concat training dataFrames
-    trainingDataFrame = pd.concat([df_lck_2022, df_lck_2021, df_lck_2020])
-
-    # x_train and y_train def
-    x_train = trainingDataFrame.iloc[:, -3:-1].values
-    y_train = trainingDataFrame.iloc[:, -1:].values
-    y_train = y_train.ravel()
-
     #test data
     #2023
     data_lck_2023 = get_Team_Data(url_lck_2023_ranking, url_lck_2023_results)
@@ -124,8 +116,17 @@ def main():
     data_emea_2023 = get_Team_Data(url_emea_2023_ranking, url_emea_2023_results)
     df_emea_2023 = pd.DataFrame(data_emea_2023)
 
-    testingDataFrame = df_emea_2023
+    #Training and testing data
+    # Training data frame, give trainingDataFrame variable a dataframe and choose columns below
+    trainingDataFrame = pd.concat([df_lck_2022, df_lck_2021, df_lck_2020])
+    # x_train and y_train def
+    x_train = trainingDataFrame.iloc[:, -3:-1].values
+    y_train = trainingDataFrame.iloc[:, -1:].values
+    y_train = y_train.ravel()
 
+    # Testing data frame, give testingDataFrame variable a dataframe and choose columns below
+    testingDataFrame = df_emea_2023
+    # Choose the columns you want to select from it for x and y data 
     x_test = testingDataFrame.iloc[:, -3:-1].values
     y_test = testingDataFrame.iloc[:, -1:].values
 
