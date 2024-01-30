@@ -22,10 +22,5 @@ Not very accurate since the data we got was limited
 If you want to give it data, you can change the testing data 'testingDataFrame' on row 128 of main.py and the training data 'trainingDataFrame'on row 112.
 This variables accept Dataframes and dont forget to choose columns for x and y.
 
-You will need to install all these libraries
-requests, re, pandas as pd, numpy as np, os
-from bs4 import BeautifulSoup
-from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
-from pathlib import Path
-from flask import  Flask, jsonify, render_template, send_from_directory
+You will need to install all these libraries:
+import requests, re, pandas as pd, numpy as np, os, from bs4 import BeautifulSoup, from sklearn.preprocessing import StandardScaler, from sklearn.svm import SVC, from pathlib import Path, from flask import  Flask, jsonify, render_template, send_from_directory
