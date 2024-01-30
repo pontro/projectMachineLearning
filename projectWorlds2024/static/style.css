@@ -1,0 +1,38 @@
+head{
+    margin: 0px;
+}
+
+.titulo{
+    margin: 0px;
+}
+
+header{
+    background-color: rgb(95, 186, 255);
+    display: block;
+    width: auto;
+    height: 300px;
+    margin: 0px;
+    top: 0px;
+}
+
+.mar{
+    background-color: aqua;
+    display: block;
+    width: auto;
+    height: 200px;
+    margin: 0px;
+}
+
+body{
+    margin: 0px;
+}
+
+.predictions{
+    background-color: orange;
+    width: auto;
+    position: relative;
+    text-align: center;
+    display: block;
+    bottom: 0px;
+    margin: 0px;
+}
