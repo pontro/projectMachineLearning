@@ -1,8 +1,8 @@
 import requests, re, pandas as pd, numpy as np, os
 from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC 
-from pathlib import Path  
+from sklearn.svm import SVC
+from pathlib import Path
 from flask import  Flask, jsonify, render_template, send_from_directory
 
 app = Flask(__name__)
