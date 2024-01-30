@@ -1,3 +1,4 @@
+#librerias
 import requests, re, pandas as pd, numpy as np, os
 from bs4 import BeautifulSoup
 from sklearn.preprocessing import StandardScaler
@@ -5,8 +6,10 @@ from sklearn.svm import SVC
 from pathlib import Path
 from flask import  Flask, jsonify, render_template, send_from_directory
 
+#framework para mandar data a HTML
 app = Flask(__name__)
 
+#urls para la base de datos
 #2023 emea urls
 url_emea_2023_ranking = "https://gol.gg/tournament/tournament-ranking/EMEA%20Masters%20Summer%202023/"
 url_emea_2023_results = "https://gol.gg/tournament/tournament-matchlist/EMEA%20Masters%20Summer%202023/"
@@ -27,11 +30,13 @@ url_lck_2021_results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Sum
 url_lck_2020_ranking = "https://gol.gg/tournament/tournament-ranking/LCK%20Summer%20Playoffs%202020/"
 url_lck_2020_results = "https://gol.gg/tournament/tournament-matchlist/LCK%20Summer%20Playoffs%202020/"
 
+#esta funcion es para llamar el url con la libreria BeautifulSoup
 def getHtml(url):
     page = requests.get(url)
     html_page = BeautifulSoup(page.content, "html.parser")
     return html_page
 
+#esta funcion sirve para sacar los nombres de cada equipo del HTML del url
 def getTeamNames(html_page):
     teams = html_page.find_all('a', title = re.compile("stats in"))
     names = []
@@ -39,6 +44,7 @@ def getTeamNames(html_page):
         names.append(element.string)
     return names
 
+#esta funcion sirve para sacar el WinRate de cada equipo del HTML del url
 def getTeamWinRate(html_page):
     winRate=html_page.find_all('div', class_= "col-auto pl-1 position-absolute")
     wr = []
@@ -48,6 +54,7 @@ def getTeamWinRate(html_page):
         wr[i] = int (wr[i].strip("%"))
     return wr
 
+#esta funcion sirve para sacar el GDM (Gold Diferential per Minute) de cada equipo del HTML del url
 def getTeamGDM(html_page):
     team_rows = html_page.find_all('tr')[1:]
     teams_stats = []
@@ -69,6 +76,7 @@ def getTeamGDM(html_page):
          teams_GDM[i] = int (teams_GDM[i])
     return teams_GDM
 
+#esta funcion sirve para sacar el equipo ganador de cada liga/regional del HTML del url
 def getWinners(html_page, lck2022):
     team_rows = html_page.find_all('tr')[1:]
     teams_stats = []
@@ -87,6 +95,7 @@ def getWinners(html_page, lck2022):
 
     return wins
 
+#genera un diccionario en el que se recaba la data de las funciones TeamNames, TeamWinrate, TeamGDM, Winners
 def get_Team_Data(url_ranking, url_results):
     html_ranking = getHtml(url_ranking)
     html_results = getHtml(url_results)
@@ -95,24 +104,24 @@ def get_Team_Data(url_ranking, url_results):
 
 def main():
 
-    # training data
-    # 2020 
+    #training data
+    # data frame 2020 
     data_lck_2020 = get_Team_Data(url_lck_2020_ranking, url_lck_2020_results)
     df_lck_2020 = pd.DataFrame(data_lck_2020)
 
-    # 2021 
+    # data frame 2021 
     data_lck_2021 = get_Team_Data(url_lck_2021_ranking, url_lck_2021_results)
     df_lck_2021 = pd.DataFrame(data_lck_2021)
 
-    # 2022 
+    # data frame 2022 
     data_lck_2022 = get_Team_Data(url_lck_2022_ranking, url_lck_2022_results)
     df_lck_2022 = pd.DataFrame(data_lck_2022)
     
     #test data
-    #2023
+    # data frame 2023 lck
     data_lck_2023 = get_Team_Data(url_lck_2023_ranking, url_lck_2023_results)
     df_lck_2023 = pd.DataFrame(data_lck_2023)
-    # 2023 emea
+    # data frame 2023 emea
     data_emea_2023 = get_Team_Data(url_emea_2023_ranking, url_emea_2023_results)
     df_emea_2023 = pd.DataFrame(data_emea_2023)
 
@@ -144,6 +153,7 @@ def main():
     predictions = y_pred.reshape(len(y_pred),1)
     predictions = predictions.ravel()
 
+   # add colums 
     testingDataFrame['WinsPred'] = predictions
     testingDataFrame['Check'] = np.where(testingDataFrame['WinsPred'] == testingDataFrame['Wins'], '✔', '✘') 
     results_df = testingDataFrame
