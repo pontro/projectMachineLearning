@@ -1,3 +1,5 @@
+//no funciona
+
 document.addEventListener('DOMContentLoaded', function () {
     // Hacer una solicitud al servidor para obtener los resultados
     fetch('/obtener_resultados')  // Ajusta la ruta según tu configuración del servidor
